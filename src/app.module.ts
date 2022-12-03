@@ -5,7 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 @Module({
   imports: [
     MongooseModule.forRoot(
-      'mongodb+srv://admin:l9dviLx3NXbGhIDH@cluster0.q89qsey.mongodb.net/SmartRanking?retryWrites=true&w=majority',
+      `mongodb+srv://admin:${process.env.MONGODB_KEY}@cluster0.q89qsey.mongodb.net/${process.env.MONGODB_CL}?retryWrites=true&w=majority`,
       {
         useNewUrlParser: true,
         useUnifiedTopology: true,
