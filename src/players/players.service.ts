@@ -1,31 +1,35 @@
 import { CreatePlayerDto } from './dtos/createPlayer.dto';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Player } from './interfaces/player.interface';
-import { v4 as uuid } from 'uuid';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class PlayersService {
-  private players: Player[] = [];
+  constructor(
+    @InjectModel('Player') private readonly playerModel: Model<Player>,
+  ) {}
 
   private readonly logger = new Logger(PlayersService.name);
 
   async createUpdatePlayer(createPlayerDto: CreatePlayerDto): Promise<void> {
     const { email } = createPlayerDto;
-    const playerFound = this.players.find((player) => player.email === email);
+
+    const playerFound = await this.playerModel.findOne({ email }).exec();
 
     if (playerFound) {
-      this.updatePlayer(playerFound, createPlayerDto);
+      this.updatePlayer(createPlayerDto);
     } else {
       this.createPlayer(createPlayerDto);
     }
   }
 
   async findAllPlayers(): Promise<Player[]> {
-    return this.players;
+    return await this.playerModel.find().exec();
   }
 
-  async findPlayerByEmail(email: string): Promise<Player> {
-    const playerFound = this.players.find((player) => player.email === email);
+  async findPlayerByEmail(email: string): Promise<any> {
+    const playerFound = await this.playerModel.findOne({ email }).exec();
 
     if (!playerFound) {
       throw new NotFoundException(`Player with email ${email} not found`);
@@ -34,36 +38,25 @@ export class PlayersService {
     return playerFound;
   }
 
-  private async createPlayer(createPlayerDto: CreatePlayerDto): Promise<void> {
-    const { name, phoneNumber, email } = createPlayerDto;
-    const player: Player = {
-      _id: uuid(),
-      name,
-      phoneNumber,
-      email,
-      ranking: 'A',
-      rankingPosition: 1,
-      urlPhotoPlayer: 'http://teste.com',
-    };
-    this.logger.log(`Player: ${JSON.stringify(player)}`);
-    this.players.push(player);
-  }
-
-  private updatePlayer(
-    playerFound: Player,
+  private async createPlayer(
     createPlayerDto: CreatePlayerDto,
-  ): void {
-    const { name } = createPlayerDto;
-    playerFound.name = name;
+  ): Promise<Player> {
+    const createPlayer = new this.playerModel(createPlayerDto);
+    return await createPlayer.save();
   }
 
-  async deletePlayer(email: string): Promise<void> {
-    const playerFound = this.players.find((player) => player.email === email);
+  private async updatePlayer(
+    createPlayerDto: CreatePlayerDto,
+  ): Promise<Player> {
+    return await this.playerModel
+      .findOneAndUpdate(
+        { email: createPlayerDto.email },
+        { $set: createPlayerDto },
+      )
+      .exec();
+  }
 
-    if (!playerFound) {
-      throw new NotFoundException(`Player with email ${email} not found`);
-    }
-
-    this.players = this.players.filter((player) => player.email !== email);
+  async deletePlayer(email: string): Promise<any> {
+    return await this.playerModel.deleteOne({ email }).exec();
   }
 }
