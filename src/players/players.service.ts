@@ -6,9 +6,7 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class PlayersService {
-  constructor(
-    @InjectModel('Player') private readonly playerModel: Model<Player>,
-  ) {}
+  constructor(@InjectModel('Player') private readonly playerModel: Model<Player>) {}
 
   private readonly logger = new Logger(PlayersService.name);
 
@@ -38,21 +36,14 @@ export class PlayersService {
     return playerFound;
   }
 
-  private async createPlayer(
-    createPlayerDto: CreatePlayerDto,
-  ): Promise<Player> {
+  private async createPlayer(createPlayerDto: CreatePlayerDto): Promise<Player> {
     const createPlayer = new this.playerModel(createPlayerDto);
     return await createPlayer.save();
   }
 
-  private async updatePlayer(
-    createPlayerDto: CreatePlayerDto,
-  ): Promise<Player> {
+  private async updatePlayer(createPlayerDto: CreatePlayerDto): Promise<Player> {
     return await this.playerModel
-      .findOneAndUpdate(
-        { email: createPlayerDto.email },
-        { $set: createPlayerDto },
-      )
+      .findOneAndUpdate({ email: createPlayerDto.email }, { $set: createPlayerDto })
       .exec();
   }
 
