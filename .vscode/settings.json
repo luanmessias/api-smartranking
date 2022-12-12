@@ -1,0 +1,22 @@
+{
+  "editor.formatOnSave": true,
+  "[vue]": {
+    "editor.formatOnSave": true,
+  },
+  "[javascript]": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    },
+    "editor.formatOnPaste": true,
+    "editor.formatOnType": true,
+  },
+  "[typescript]": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": true,
+      "source.fixAll.eslint": true 
+    }
+  },
+  "vue3snippets.enable-compile-vue-file-on-did-save-code": true,
+}
